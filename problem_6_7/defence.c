@@ -9,13 +9,18 @@
 Note: this must be compiled with the flags -fno-stack-protector -g
 */
 
-unsigned int getClearance(char* password) {
+unsigned int getSafeClearance(char* password) {
     char pwd[128]; // ultra-long passwords are super-secure
     unsigned int level = 0; // default level
-    strcpy(pwd, password);
+    // this length check will prevent buffer overflow :)
+    if (strlen(password) <= 128){
+        strcpy(pwd, password);
+    }
+    // else: print some warning message of attempted overflow attack and exit
+    
     
     int checkPwd = strcmp(pwd, "bertie4ever");
-    //printf("level is %u\n", level);
+
     if ( checkPwd == 0 ) {
 	    printf("Authentication correct.\n");
         level = 100;
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]) {
 	printf("./overflow PASSWORD\n");
 	return -1;
     }
-    unsigned int clearance = getClearance(argv[1]);
+    unsigned int clearance = getSafeClearance(argv[1]);
     if (clearance >= 100) {
         printf("%s has clearance level: %d. Access granted...\n", argv[1], clearance);
         decryptSecret();
