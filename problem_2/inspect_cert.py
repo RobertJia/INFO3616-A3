@@ -2,7 +2,6 @@
 import binascii
 from cryptography.hazmat.primitives import asymmetric
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.backends import openssl
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives import hashes
 from cryptography.exceptions import InvalidSignature
@@ -57,12 +56,8 @@ def open_cert(filename):
 # Make use of the 'hashes' functionality in cryptography.
 def hash_public_key(pk):
     digest = hashes.Hash(hashes.SHA256())
-    #digest.update(pk[:32])
-    #digest.update(pk[32:])
     digest.update(pk)
     d = digest.finalize()
-    #d = binascii.b2a_base64(d)
-    #print(binascii.hexlify(d))
     return binascii.hexlify(d)
 # YOUR TASK ENDS HERE
 
@@ -98,25 +93,22 @@ def inspect_cert(cert):
     # PUBLIC KEY ALGORITHM: YOUR TASK STARTS HERE
     p = cert.public_key()
     # p is the public key
-    if isinstance(p, openssl.rsa._RSAPublicKey):
+    if isinstance(p, asymmetric.rsa.RSAPublicKey):
         PUBLIC_KEY_ALGORITHM = "RSA"
-    elif isinstance(p, openssl.dsa._DSAPublicKey):
+    elif isinstance(p, asymmetric.dsa.DSAPublicKey):
         PUBLIC_KEY_ALGORITHM = "DSA"
-    elif isinstance(p, openssl.ec._EllipticCurvePublicKey):
+    elif isinstance(p, asymmetric.ec.EllipticCurvePublicKey):
         PUBLIC_KEY_ALGORITHM = p.curve.name
-    elif isinstance(p, openssl.ed25519._Ed25519PublicKey):
+    elif isinstance(p, asymmetric.ed25519.Ed25519PublicKey):
         PUBLIC_KEY_ALGORITHM = "Ed25519"
-    elif isinstance(p, openssl.ed448._Ed448PublicKey):
+    elif isinstance(p, asymmetric.ed448.Ed448PublicKey):
         PUBLIC_KEY_ALGORITHM = "Ed448"
     else:
         PUBLIC_KEY_ALGORITHM = "UNKNOWN"
     # YOUR TASK ENDS HERE
 
     # PUBLIC KEY HASH: YOUR TASK STARTS HERE
-    #pk_bytes = bytes(p.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo).decode('utf-8').rstrip(), 'utf-8')
-    pk_bytes = p.public_bytes(Encoding.X962, PublicFormat.CompressedPoint)
-    #pk_bytes = p.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyIanfo)[27:-26]
-    #print(binascii.b2a_base64(pk_bytes))
+    pk_bytes = p.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
     PUBLIC_KEY_HASH = hash_public_key(pk_bytes)
     # YOUR TASK ENDS HERE
 
@@ -155,8 +147,8 @@ def verify_cert(cert, issuer_cert):
     except InvalidSignature:
         print("invalid signature")
         VERIFIABLE = False
-    #except Exception as e:
-    #   print("Unknown exception when verifying certificate signature. Are you trying to verify a cert that wasn't signed with RSA?")
+    except Exception as e:
+        print("Unknown exception when verifying certificate signature. Are you trying to verify a cert that wasn't signed with RSA?")
         sys.exit(-1)
     # YOUR TASK ENDS HERE
 
