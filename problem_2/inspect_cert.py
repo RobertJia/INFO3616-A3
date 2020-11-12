@@ -108,7 +108,8 @@ def inspect_cert(cert):
     # YOUR TASK ENDS HERE
 
     # PUBLIC KEY HASH: YOUR TASK STARTS HERE
-    pk_bytes = p.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
+    ## OMG IT'S DER FORMAT!!! Tricky... we even tried all other encodings and public formats...
+    pk_bytes = p.public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)
     PUBLIC_KEY_HASH = hash_public_key(pk_bytes)
     # YOUR TASK ENDS HERE
 
